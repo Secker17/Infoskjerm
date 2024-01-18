@@ -1,0 +1,61 @@
+/* General layout and typography */
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0; /* Light gray background */
+  }
+  
+  section {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  p {
+    color: #333; /* Dark gray text */
+    margin-bottom: 15px;
+  }
+  
+  /* Form styling */
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  input[type="email"], input[type="password"] {
+    padding: 10px;
+    border: 1px solid #ddd; /* Light gray border */
+    border-radius: 4px;
+    margin-top: 5px;
+  }
+  
+  /* Button styling */
+  button {
+    background-color: #007bff; /* Blue background */
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+  }
+  
+  /* Link styling */
+  NavLink {
+    color: #007bff; /* Blue text for links */
+    text-decoration: none;
+  }
+  
+  NavLink:hover {
+    text-decoration: underline;
+  }
+  
