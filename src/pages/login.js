@@ -1,30 +1,35 @@
-import React, { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
-import { NavLink, useNavigate } from 'react-router-dom';
-import '../login.css'; // Importerer CSS-filen
+// Importerer nødvendige biblioteker og stilark
+import React, { useState } from 'react'; // React og useState hook
+import { signInWithEmailAndPassword } from 'firebase/auth'; // Firebase-funksjon for innlogging med e-post og passord
+import { auth } from '../firebase'; // Firebase-autentiseringsinstans
+import { NavLink, useNavigate } from 'react-router-dom'; // React Router for navigering og lenker
+import '../login.css'; // Importerer CSS-filen for stil
+
+// Komponent for innloggingssiden
 const Login = () => {
-    const navigate = useNavigate();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const navigate = useNavigate(); // Hook for å programmere navigasjon, bruke visse react funksjoner.
+    const [email, setEmail] = useState(''); // State for brukerens e-post
+    const [password, setPassword] = useState(''); // State for brukerens passord
        
+    // Funksjonen som kjøres når brukeren prøver å logge inn
     const onLogin = (e) => {
-        e.preventDefault();
-        signInWithEmailAndPassword(auth, email, password)
+        e.preventDefault(); // Forhindrer standard oppførsel for skjemaet (sideoppdatering)
+        signInWithEmailAndPassword(auth, email, password) // Prøver å logge inn med e-post og passord
         .then((userCredential) => {
-            // Signed in
-            const user = userCredential.user;
-            navigate("/admin")
-            console.log(user);
+            // Hvis innloggingen er vellykket
+            const user = userCredential.user; // Henter brukerdata
+            navigate("/admin") // Navigerer til admin-siden
+            console.log(user); // Logger brukerdata til konsollen
         })
         .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            console.log(errorCode, errorMessage)
+            // Hvis det er en feil under innloggingen
+            const errorCode = error.code; // Feilkoden fra Firebase
+            const errorMessage = error.message; // Feilmeldingen fra Firebase
+            console.log(errorCode, errorMessage); // Logger feilkode og melding til konsollen
         });
-       
     }
  
+    // Render-funksjonen for komponenten
     return(
         <>
             <main >        
@@ -34,7 +39,7 @@ const Login = () => {
                                                        
                         <form>                                              
                             <div>
-                              
+                                {/* E-postinngangsfelt */}
                                 <input
                                     id="email-address"
                                     name="email"
@@ -46,7 +51,7 @@ const Login = () => {
                             </div>
 
                             <div>
-                              
+                                {/* Passordinngangsfelt */}
                                 <input
                                     id="password"
                                     name="password"
@@ -58,6 +63,7 @@ const Login = () => {
                             </div>
                                                 
                             <div>
+                                {/* Innloggingsknapp */}
                                 <button                                    
                                     onClick={onLogin}                                        
                                 >      
@@ -65,14 +71,13 @@ const Login = () => {
                                 </button>
                             </div>                               
                         </form>
-                       
-                    
-                                                   
                     </div>
                 </section>
             </main>
+            
         </>
+        
     )
 }
  
-export default Login
+export default Login; // Eksporterer komponenten for bruk i andre deler av applikasjonen

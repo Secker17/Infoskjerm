@@ -53,3 +53,20 @@
 .button:hover {
   background-color: #0056b3;
 }
+
+iframe {
+  margin-top: 31%; /* Øker toppmargen for å flytte klokken nedover */
+  margin-left: 10%;
+
+}
+
+iframe:hover {
+  /* Nøytraliser alle effekter som kan være definert */
+  transform: none;
+  box-shadow: none;
+  /* Eventuelle andre egenskaper som må tilbakestilles */
+  transform: scale(1.1); /* Forstørrer klokken ved hover */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* Skyggeeffekt */
+}
+
+

@@ -1,17 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
+import { firestore } from '../firebase'; // Adjust this path to your actual firebase.js path
+import { doc, getDoc } from 'firebase/firestore';
+import '../App.css'; // Adjust this path to your actual CSS file
 
-
-<div className='App'></div>
-const App = () => {
+const Home = () => {
   const [weatherEmoji, setWeatherEmoji] = useState('☀️');
   const [time, setTime] = useState('');
   const [weatherForecast, setWeatherForecast] = useState('Værprognose...');
+  const [welcomeMessage, setWelcomeMessage] = useState('Velkommen'); // Default message
+
+  // Function to update the clock
+  const updateClock = () => {
+    const now = new Date();
+    let hours = now.getHours().toString().padStart(2, '0');
+    let minutes = now.getMinutes().toString().padStart(2, '0');
+    setTime(`${hours}:${minutes}`);
+  };
 
   // Function to fetch current weather and update the emoji
   const updateWeatherEmoji = async () => {
-    const apiKey = 'c5af7312f91f4226a9881121231412';
+    const apiKey = 'c5af7312f91f4226a9881121231412'; // Replace with your API key
     const city = 'asker,norway';
     const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}&aqi=no`;
 
@@ -40,7 +50,7 @@ const App = () => {
           emoji = '❄️';
           break;
         default:
-          emoji = '🌈'; // Default emoji for unexpected conditions
+          emoji = 'IDK'; // Default emoji for unexpected conditions
       }
 
       setWeatherEmoji(emoji);
@@ -49,19 +59,13 @@ const App = () => {
     }
   };
 
-  // Function to update the clock
-  const updateClock = () => {
-    const now = new Date();
-    let hours = now.getHours().toString().padStart(2, '0');
-    let minutes = now.getMinutes().toString().padStart(2, '0');
-    setTime(`${hours}:${minutes}`);
-  };
-
   // Function to fetch and update the weather forecast
   const updateWeatherForecast = async () => {
     const apiKey = 'c5af7312f91f4226a9881121231412';
     const city = 'asker,norway';
     const url = `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${city}&days=3&aqi=no&alerts=no`;
+ 
+ 
 
     try {
       const response = await fetch(url);
@@ -77,41 +81,53 @@ const App = () => {
     }
   };
 
-  // Use useEffect to call functions on component mount
-    useEffect(() => {
-      updateWeatherEmoji();
-      updateWeatherForecast();
-      const clockInterval = setInterval(updateClock, 1000);
-      return () => clearInterval(clockInterval); // Clean up interval on component unmount
-    }, []);
+  // Fetch editable content from Firestore
+  useEffect(() => {
+    const fetchEditableContent = async () => {
+      try {
+        const docRef = doc(firestore, 'editableContent', 'homePage');
+        const docSnap = await getDoc(docRef);
 
+        if (docSnap.exists()) {
+          setWelcomeMessage(docSnap.data().welcomeMessage); 
+        } else {
+          console.log("No editable content document found!");
+        }
+      } catch (error) {
+        console.error("Error fetching editable content:", error);
+      }
+    };
 
+    fetchEditableContent();
+    updateWeatherEmoji();
+    updateWeatherForecast();
+    const clockInterval = setInterval(updateClock, 1000);
 
-    return (
-      <>
-        <div className="footer-text">Secker design</div>
-        <div className="box-left">
-          <div className="box-left-text">{weatherEmoji}</div>
-          <div className="additional-text">Asker</div>
-        </div>
-        <div className="box">
-          <div className="box-text">{time || 'Laster...'}</div>
-        </div>
-        <div className="welcome">Velkommen</div>
-        <div className="forecast-box">
-          <div className="forecast-text" dangerouslySetInnerHTML={{ __html: weatherForecast }}></div>
-        </div>
-        <div className="button">
-              <Link to='/login'>
-                  <Button variant="primary">Login</Button>
-              </Link>
-          </div>
-      </>
-    );
+    return () => clearInterval(clockInterval); // Clean up interval on component unmount
+  }, []);
+
+  return (
+    <div className='App'>
     
-  }
+      <div className="footer-text">Secker design</div>
+      <div className="box-left">
+        <div className="box-left-text">{weatherEmoji}</div>
+        <div className="additional-text">Asker</div>
+      </div>
+      <div className="box">
+        <div className="box-text">{time || 'Laster...'}</div>
+      </div>
+      <div className="welcome">{welcomeMessage}</div>
+      <div className="forecast-box">
+        <div className="forecast-text" dangerouslySetInnerHTML={{ __html: weatherForecast }}></div>
+      </div>
+      <div className="button">
+        <Link to='/login'>
+          <Button variant="primary">Login</Button>
+        </Link>
+      </div>
+    </div>
+  );
+};
 
-
-
-
-export default App;
+export default Home;

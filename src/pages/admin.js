@@ -1,35 +1,88 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import { auth } from '../firebase'; // Endre denne stien til den faktiske stien til din firebase.js
+import { auth, firestore } from '../firebase'; // Adjust this path to your actual firebase.js path
 import { onAuthStateChanged } from 'firebase/auth';
-import '../admin.css';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+
+import '../admin.css'; // Adjust this path to your actual CSS file
 
 const AdminPanel = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [welcomeMessage, setWelcomeMessage] = useState(''); // State for the welcome message
+  const [userRole, setUserRole] = useState('');
 
+  // Authentication state and user role verification
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Brukeren er logget inn.
         setIsLoggedIn(true);
+        try {
+          const docRef = doc(firestore, 'users', user.uid); // Ensure this path matches your Firestore users collection
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists() && docSnap.data().role === 'admin') {
+            setUserRole(docSnap.data().role);
+          } else {
+            console.log("No such document or not an admin!");
+            navigate('/login'); // Redirect if not admin
+          }
+        } catch (error) {
+          console.error("Error fetching user role:", error);
+        }
       } else {
-        // Brukeren er ikke logget inn.
         navigate('/login');
       }
     });
 
-    // Rens opp lytteren når komponenten blir fjernet
     return () => unsubscribe();
   }, [navigate]);
+
+  // Fetching editable content for the admin to edit
+  useEffect(() => {
+    const fetchEditableContent = async () => {
+      try {
+        const docRef = doc(firestore, 'content', 'homePage'); // Adjust this path to your actual content document
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          setWelcomeMessage(docSnap.data().welcomeMessage); // Adjust this to match your field
+        } else {
+          console.log("No editable content document found!");
+        }
+      } catch (error) {
+        console.error("Error fetching editable content:", error);
+      }
+    };
+
+    if (isLoggedIn && userRole === 'admin') {
+      fetchEditableContent();
+    }
+  }, [isLoggedIn, userRole]);
+
+  const handleWelcomeMessageChange = (event) => {
+    setWelcomeMessage(event.target.value);
+  };
+
+  const handleSave = async () => {
+    try {
+      const docRef = doc(firestore, 'content', 'homePage'); // Adjust this to your actual content document
+      await updateDoc(docRef, {
+        welcomeMessage: welcomeMessage // Adjust this to match your field
+      });
+      // Add success/notification logic here if needed
+    } catch (error) {
+      console.error('Error updating content:', error);
+      // Add error/notification logic here if needed
+    }
+  };
 
   const handleLogout = () => {
     auth.signOut().then(() => {
       setIsLoggedIn(false);
       navigate('/login');
     }).catch((error) => {
-      // Håndter feil her.
       console.error('Logout Error:', error);
     });
   };
@@ -43,41 +96,38 @@ const AdminPanel = () => {
       </div>
     );
   }
+
   return (
-    <div className="admin-container">
-      <h1 className="admin-header">Admin Panel</h1>
-      <div className="admin-dashboard">
-        <h2>Dashboard</h2>
-        {/* Dashboard widgets or summary cards */}
-      </div>
-      <div className="admin-user-management">
-        <h2>Brukerhåndtering</h2>
-        {/* User management functionalities */}
-      </div>
-      <div className="admin-content-management">
-        <h2>Innholdsadministrasjon</h2>
-        {/* Content management functionalities */}
-      </div>
-      <div className="admin-settings">
-        <h2>Innstillinger</h2>
-        {/* Settings functionalities */}
-      </div>
-      <div className="admin-analytics">
-        <h2>Analyserapporter</h2>
-        {/* Analytics and reports */}
-      </div>
-      <div className="admin-support">
-        <h2>Støtteforespørsler</h2>
-        {/* Support request functionalities */}
-      </div>
-      <div className="admin-notifications">
-        <h2>Varslinger</h2>
-        {/* Notifications functionalities */}
-      </div>
-      <Button className="admin-button" variant="danger" onClick={handleLogout}>Logout</Button>
+    <div className="dashboard-container">
+      <aside className="sidebar">
+        <h1>SECKER ADMIN</h1>
+        <nav className="menu">
+          <a href="#">Dashboard</a>
+          <a href="#" className="active">Edit Home</a>
+          {/* Other navigation links */}
+        </nav>
+      </aside>
+      <main className="main-content">
+        <header className="header">
+          <input type="search" placeholder="Search for..."></input>
+          <button onClick={handleLogout}>Logout</button>
+        </header>
+
+        <div>
+          <h2>Edit Home Page Content</h2>
+          <div>
+            <label htmlFor="welcomeMessage">Welcome Message:</label>
+            <textarea id="welcomeMessage" value={welcomeMessage} onChange={handleWelcomeMessageChange}></textarea>
+          </div>
+          <button onClick={handleSave}>Save Changes</button>
+        </div>
+        
+        <footer className="footer">
+          <p>Copyright © Your Website 2022</p>
+        </footer>
+      </main>
     </div>
   );
-  
 };
 
 export default AdminPanel;

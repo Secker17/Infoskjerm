@@ -1,50 +1,107 @@
-body {
-    font-family: 'Arial', sans-serif;
-    color: #333;
-    background-color: #f4f4f4;
-  }
-  
-  .admin-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-  }
-  
-  .admin-header {
-    grid-column: 1 / -1;
-    font-size: 24px;
-    color: #007bff;
-    margin-bottom: 30px;
-  }
-  
-  .admin-dashboard, .admin-user-management, .admin-content-management, 
-  .admin-settings, .admin-analytics, .admin-support, .admin-notifications {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-  }
-  
-  .admin-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .admin-button:hover {
-    background-color: #0056b3;
-  }
-  
-  @media (max-width: 768px) {
-    .admin-container {
-      grid-template-columns: 1fr;
-    }
-  }
-  
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+.dashboard-container {
+  display: flex;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #2c3e50;
+  height: 100vh;
+  padding: 20px;
+  color: white;
+}
+
+.sidebar h1 {
+  color: #ecf0f1;
+  margin-bottom: 30px;
+}
+
+.menu a {
+  display: block;
+  color: #ecf0f1;
+  padding: 10px;
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+
+.menu a.active {
+  background-color: #3498db;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #ecf0f1;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header input[type=search] {
+  padding: 10px;
+  width: 200px;
+}
+
+.header button {
+  padding: 10px;
+  background-color: #3498db;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-info span {
+  margin-right: 10px;
+}
+
+.data-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th, .data-table td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.data-table button {
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.edit {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.delete {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.footer {
+  text-align: center;
+  padding: 10px;
+  background-color: #2c3e50;
+  color: white;
+  position: absolute;
+  bottom: 0;
+  width: calc(100% - 250px);
+}
