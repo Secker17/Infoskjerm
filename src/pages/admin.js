@@ -1,75 +1,90 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import { auth, firestore } from '../firebase.js'; // Adjust this path to your actual firebase.js path
+import { auth, firestore } from '../firebase'; // Adjust this path to your actual firebase.js path
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore'; // Import Firestore functions
-import { updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
-import '../admin.css';
+import '../admin.css'; // Adjust this path to your actual CSS file
 
-
-  const AdminPanel = () => {
+const AdminPanel = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [content, setContent] = useState(''); // State for the content you want to edit
-  const [userRole, setUserRole] = useState(''); // Declare userRole state variable
+  const [welcomeMessage, setWelcomeMessage] = useState(''); // State for the welcome message
+  const [userRole, setUserRole] = useState('');
 
+  // Authentication state and user role verification
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // User is logged in.
         setIsLoggedIn(true);
-
-        // Fetch user role from Firestore
         try {
-          const docRef = doc(firestore, 'user', '0JUZErvwmTE6jy4Wc7fr'); // Replace YOUR_DOCUMENT_ID 
+          const docRef = doc(firestore, 'users', user.uid); // Ensure this path matches your Firestore users collection
           const docSnap = await getDoc(docRef);
 
-          if (docSnap.exists()) {
+          if (docSnap.exists() && docSnap.data().role === 'admin') {
             setUserRole(docSnap.data().role);
           } else {
-            console.log("No such document!");
+            console.log("No such document or not an admin!");
+            navigate('/login'); // Redirect if not admin
           }
         } catch (error) {
           console.error("Error fetching user role:", error);
         }
       } else {
-        // User is not logged in.
         navigate('/login');
       }
     });
 
-    // Clean up the listener when the component unmounts
     return () => unsubscribe();
   }, [navigate]);
 
+  // Fetching editable content for the admin to edit
+  useEffect(() => {
+    const fetchEditableContent = async () => {
+      try {
+        const docRef = doc(firestore, 'content', 'homePage'); // Adjust this path to your actual content document
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          setWelcomeMessage(docSnap.data().welcomeMessage); // Adjust this to match your field
+        } else {
+          console.log("No editable content document found!");
+        }
+      } catch (error) {
+        console.error("Error fetching editable content:", error);
+      }
+    };
+
+    if (isLoggedIn && userRole === 'admin') {
+      fetchEditableContent();
+    }
+  }, [isLoggedIn, userRole]);
+
+  const handleWelcomeMessageChange = (event) => {
+    setWelcomeMessage(event.target.value);
+  };
+
+  const handleSave = async () => {
+    try {
+      const docRef = doc(firestore, 'content', 'homePage'); // Adjust this to your actual content document
+      await updateDoc(docRef, {
+        welcomeMessage: welcomeMessage // Adjust this to match your field
+      });
+      // Add success/notification logic here if needed
+    } catch (error) {
+      console.error('Error updating content:', error);
+      // Add error/notification logic here if needed
+    }
+  };
 
   const handleLogout = () => {
     auth.signOut().then(() => {
       setIsLoggedIn(false);
       navigate('/login');
     }).catch((error) => {
-      // Handle logout error here
       console.error('Logout Error:', error);
     });
-  };
-
-  const handleContentChange = (event) => {
-    setContent(event.target.value);
-  };
-
-  const handleSave = async () => {
-    try {
-      const docRef = doc(firestore, 'yourCollection', 'yourDoc');
-      await updateDoc(docRef, {
-        yourField: content // Update this with your specific field
-      });
-      // Add success notification here if needed
-    } catch (error) {
-      console.error('Error updating content:', error);
-      // Add error notification here if needed
-    }
   };
 
   if (!isLoggedIn) {
@@ -82,18 +97,14 @@ import '../admin.css';
     );
   }
 
-  // Render the admin panel when the user is logged in
   return (
     <div className="dashboard-container">
       <aside className="sidebar">
         <h1>SECKER ADMIN</h1>
         <nav className="menu">
           <a href="#">Dashboard</a>
-          <a href="#" className="active">Admin Profile</a>
-          <a href="#">Utilities</a>
-          <a href="#">Pages</a>
-          <a href="#">Charts</a>
-          <a href="#">Tables</a>
+          <a href="#" className="active">Edit Home</a>
+          {/* Other navigation links */}
         </nav>
       </aside>
       <main className="main-content">
@@ -103,18 +114,16 @@ import '../admin.css';
         </header>
 
         <div>
-          <h2>Edit Screen Content</h2>
-          <p>You can change the content displayed on your screen by editing the text below. Changes will be reflected on the screen in real-time.</p>
-          <textarea value={content} onChange={handleContentChange}></textarea>
+          <h2>Edit Home Page Content</h2>
+          <div>
+            <label htmlFor="welcomeMessage">Welcome Message:</label>
+            <textarea id="welcomeMessage" value={welcomeMessage} onChange={handleWelcomeMessageChange}></textarea>
+          </div>
           <button onClick={handleSave}>Save Changes</button>
         </div>
         
-        <div>
-          <p>User Role: {userRole}</p> {/* Display user role */}
-        </div>
-        
         <footer className="footer">
-          <p>Copyright © Your Website 2019</p>
+          <p>Copyright © Your Website 2022</p>
         </footer>
       </main>
     </div>

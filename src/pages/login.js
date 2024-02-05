@@ -7,7 +7,7 @@ import '../login.css'; // Importerer CSS-filen for stil
 
 // Komponent for innloggingssiden
 const Login = () => {
-    const navigate = useNavigate(); // Hook for å programmere navigasjon
+    const navigate = useNavigate(); // Hook for å programmere navigasjon, bruke visse react funksjoner.
     const [email, setEmail] = useState(''); // State for brukerens e-post
     const [password, setPassword] = useState(''); // State for brukerens passord
        
@@ -74,7 +74,9 @@ const Login = () => {
                     </div>
                 </section>
             </main>
+            
         </>
+        
     )
 }
  

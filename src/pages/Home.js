@@ -89,8 +89,7 @@ const Home = () => {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          setWelcomeMessage(docSnap.data().welcomeMessage); // Update this with your specific field
-          // Add more fields as necessary
+          setWelcomeMessage(docSnap.data().welcomeMessage); 
         } else {
           console.log("No editable content document found!");
         }
