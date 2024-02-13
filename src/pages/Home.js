@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import { firestore } from '../firebase'; // Adjust this path to your actual firebase.js path
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import '../App.css'; // Adjust this path to your actual CSS file
 
 const Home = () => {
@@ -10,10 +10,6 @@ const Home = () => {
   const [time, setTime] = useState('');
   const [weatherForecast, setWeatherForecast] = useState('Værprognose...');
   const [welcomeMessage, setWelcomeMessage] = useState('Velkommen'); // Default message
-
-  const welcomesub = onSnapshot (doc(firestore, "content", "homePage"), doc => {
-    setWelcomeMessage (doc.data().welcomeMessage)
-  })
 
   // Function to update the clock
   const updateClock = () => {
@@ -128,6 +124,11 @@ const Home = () => {
       <div className="button">
         <Link to='/login'>
           <Button variant="primary">Login</Button>
+        </Link>
+      </div>
+      <div className="button2">
+        <Link to='/signup'>
+          <Button variant="primary">Signup</Button>
         </Link>
       </div>
     </div>
